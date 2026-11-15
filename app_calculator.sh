@@ -5,4 +5,4 @@ if [ -z "$num1" ] || [ -z "$num2" ]; then
   echo "Ошибка: не переданы аргументы" >&2
   exit 1
 fi
-echo "Сумма: $((num1 + num2))"
+echo "Сумма: $((num1 * num2))"

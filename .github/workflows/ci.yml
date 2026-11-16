@@ -17,3 +17,21 @@ jobs:
         run: shellcheck auth.sh app_calculator.sh tests/test_calculator.sh
       - name: Test calculator
         run: bash tests/test_calculator.sh
+  docker-build:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t my-app:${{ github.sha }} .
+      - name: Check HTTP response
+        run: |
+          docker run -d -p 127.0.0.1:8080:8080 \
+            --name test_app my-app:${{ github.sha }}
+          curl --fail --retry 15 --retry-all-errors \
+            --retry-delay 1 --max-time 5 http://localhost:8080
+      - name: Container logs and cleanup
+        if: always()
+        run: |
+          docker logs test_app || true
+          docker rm -f test_app || true

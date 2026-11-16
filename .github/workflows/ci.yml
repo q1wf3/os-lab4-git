@@ -35,3 +35,17 @@ jobs:
         run: |
           docker logs test_app || true
           docker rm -f test_app || true
+  ansible-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Ansible tools
+        run: pip install ansible-core ansible-lint
+      - name: Validate playbook
+        run: |
+          ansible-playbook -i ansible_iac/hosts.ini \
+            ansible_iac/setup_env.yml --syntax-check
+          ansible-lint ansible_iac/setup_env.yml
